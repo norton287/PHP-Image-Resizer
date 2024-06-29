@@ -13,7 +13,7 @@
 ### Clone the Repository:
 
 ```Bash
-git clone https://your-repository-url.git
+git clone https://github.com/norton287/PHP-Image-Resizer.git)
 ```
 ### Install Dependencies:
 
