@@ -1,5 +1,6 @@
 # Image Resizer
 - This is a PHP-based web application that allows users to upload images, resize them to specified dimensions, and download the resized images as a ZIP archive. The application supports JPG, PNG, and BMP image formats and provides options to maintain aspect ratio and rotate images.
+- Demo here: https://resize.spindlecrank.com
 
 ## Features
 - Image Resizing: Resize images to custom width and height.
