@@ -2,36 +2,65 @@
 
 date_default_timezone_set('America/Chicago');
 
-    // Check if the 'file' parameter is set in the URL
-    if(isset($_GET['file']) && !empty($_GET['file'])) {
-        $filePath = urldecode($_GET['file']);
+// Security headers
+header('X-Content-Type-Options: nosniff');
+header('X-Frame-Options: SAMEORIGIN');
 
-        // Check if the file exists
-        if(file_exists($filePath)) {
-            // Set headers to force download
-            header('Content-Description: File Transfer');
-            header('Content-Type: application/octet-stream');
-            header('Content-Disposition: attachment; filename="'.basename($filePath).'"');
-            header('Expires: 0');
-            header('Cache-Control: must-revalidate');
-            header('Pragma: public');
-            header('Content-Length: ' . filesize($filePath));
+if (!isset($_GET['file']) || trim($_GET['file']) === '') {
+    http_response_code(400);
+    echo 'Invalid request.';
+    exit;
+}
 
-            // Clear output buffer
-            ob_clean();
+// Restrict all downloads to the zip/ directory only
+$zipDir = realpath(__DIR__ . '/zip');
+if ($zipDir === false) {
+    http_response_code(500);
+    echo 'Server configuration error.';
+    exit;
+}
 
-            // Flush the output buffer
-            flush();
+$requestedFile = realpath(__DIR__ . '/' . ltrim(urldecode($_GET['file']), '/\\'));
 
-            // Read the file content and send it to the output
-            readfile($filePath);
+if ($requestedFile === false || !str_starts_with($requestedFile, $zipDir . DIRECTORY_SEPARATOR)) {
+    http_response_code(403);
+    echo 'Access denied.';
+    exit;
+}
 
-            // Exit to prevent any additional output
-            exit;
-        } else {
-            echo 'File not found.';
-        }
-    } else {
-        echo 'Invalid request.';
-    }
-?>
+if (!is_file($requestedFile)) {
+    http_response_code(404);
+    echo 'File not found.';
+    exit;
+}
+
+// Determine Content-Type from extension so single image files are served correctly
+$ext = strtolower(pathinfo($requestedFile, PATHINFO_EXTENSION));
+$contentTypes = [
+    'zip'  => 'application/zip',
+    'jpg'  => 'image/jpeg',
+    'jpeg' => 'image/jpeg',
+    'png'  => 'image/png',
+    'webp' => 'image/webp',
+    'bmp'  => 'image/bmp',
+    'gif'  => 'image/gif',
+    'tiff' => 'image/tiff',
+    'tif'  => 'image/tiff',
+];
+$contentType = $contentTypes[$ext] ?? 'application/octet-stream';
+
+// Strip the random-hex prefix from the filename for a clean download name
+$basename    = basename($requestedFile);
+$cleanName   = preg_replace('/^[0-9a-f]{16}_/i', '', $basename);
+
+header('Content-Description: File Transfer');
+header('Content-Type: ' . $contentType);
+header('Content-Disposition: attachment; filename="' . $cleanName . '"');
+header('Expires: 0');
+header('Cache-Control: must-revalidate');
+header('Pragma: public');
+header('Content-Length: ' . filesize($requestedFile));
+ob_clean();
+flush();
+readfile($requestedFile);
+exit;
