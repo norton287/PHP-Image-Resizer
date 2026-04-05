@@ -1,0 +1,25 @@
+# ── Image Resizer Configuration ──────────────────────────────────────────────
+# Copy this file to .env and adjust values as needed.
+# All settings have safe defaults and are optional.
+
+# Server timezone (PHP timezone string)
+TIMEZONE=America/Chicago
+
+# Maximum upload size per file in megabytes (subject to PHP's upload_max_filesize)
+MAX_FILE_SIZE_MB=20
+
+# Maximum number of files per batch upload
+MAX_FILES=20
+
+# Log file rotation threshold in megabytes
+MAX_LOG_SIZE_MB=10
+
+# How long (minutes) before uploaded/processed/zip temp files are purged
+PURGE_MAX_AGE_MINUTES=15
+
+# Default JPEG/WebP output quality (1–100)
+DEFAULT_JPEG_QUALITY=90
+
+# Rate limiting: max submissions per session within the window
+RATE_LIMIT_MAX=10
+RATE_LIMIT_WINDOW=60
